@@ -1,9 +1,5 @@
-# @HisenseLtd/react-native-tuya
-Forked from @volst/react-native-tuya
-
-This is a fork of [TuyaInc/tuyasmart-home-sdk-react-native](https://github.com/TuyaInc/tuyasmart-home-sdk-react-native), fixing a lot of issues we came across and a better install guide. It also uses TypeScript. We use it currently in multiple projects for clients and it is stable.
-
-Some features are not implemented, feel free to send a PR for those missing features. Unfortunately there is no demo yet
+# @LiliaRud/react-native-tuya
+Forked from @HisenseLtd/react-native-tuya which forked from @volst/react-native-tuya
 
 ## Feature Overview
 
@@ -15,39 +11,60 @@ Tuya Cloud HTTP API interface package
 
 ## Getting started
 
+Use React Native version 0.70.5
+
 ```
 npm install @volst/react-native-tuya
 ```
 
-This library contains native code which is automatically linked in React Native >= 0.59. For iOS, run `cd ios && pod install`.
-
 ## Installation
 
-In the Tuya development environment create a new app and make sure you have an "App key", "App secret" and "Secure image". [Read how to do this](https://tuyainc.github.io/tuyasmart_home_ios_sdk_doc/en/resource/Preparation.html).
+Download a secure SDK for your app from SDK Development tab on IoT Platform.
+
+Get your AppKey and AppSecret from SDK Development tab.
 
 ### iOS
 
-Put the secure image into the root path of your project as [explained here](https://tuyainc.github.io/tuyasmart_home_ios_sdk_doc/en/resource/Preparation.html).
+Unpach archive and check README, put Build folder and ThingSmartCryption.podspec into ios folder.
 
-In `ios/AppDelegate.m`, add the following import;
+In 'Podfile' add:
+
+```
+  source 'https://github.com/TuyaInc/TuyaPublicSpecs.git'
+  source 'https://github.com/tuya/tuya-pod-specs.git'
+```
+
+After `target 'yourApp' do`
+
+```
+  pod 'ThingSmartHomeKit','~> 5.2.0'
+  pod 'YYModel', :git => "https://github.com/ibireme/YYModel.git"
+  pod 'ThingSmartCryption', :path => './tuya_sdk'
+```
+
+Run `pod install`
+
+In `ios/AppDelegate.mm`, add the following import;
 
 ```obj-c
-#import <TuyaSmartHomeKit/TuyaSmartKit.h>
+#import <ThingSmartHomeKit/ThingSmartKit.h>
 ```
 
 Then, under the `roootView.backgroundColor` line in the same file, add this:
 
 ```obj-c
   #ifdef DEBUG
-    [[TuyaSmartSDK sharedInstance] setDebugMode:YES];
+    [[ThingSmartSDK sharedInstance] setDebugMode:YES];
   #endif
 
-  [[TuyaSmartSDK sharedInstance] startWithAppKey:@"xxx" secretKey:@"xxx"];
+  [[ThingSmartSDK sharedInstance] startWithAppKey:@"xxx" secretKey:@"xxx"];
 ```
 
 Now replace the `xxx` with your app key and secret key.
 
 ### Android
+
+#### Will be updated soon
 
 Assuming you already have created an app in the Tuya development environment (otherwise follow the iOS steps before this), follow [these steps](https://tuyainc.github.io/tuyasmart_home_android_sdk_doc/en/resource/Integrated.html#3-integrated-security-image). You should now have an app key, app secret and security image for Android. Make sure the security image is put in `android/src/main/assets/t_s.bmp`.
 
@@ -99,8 +116,6 @@ android {
 ```
 
 ## Usage
-
-Now you can actually use the methods in this package. Unfortunately I don't have time to document them all, so it is advised to read the source code, but here's a start.
 
 To login with an existing account:
 
