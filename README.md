@@ -11,7 +11,7 @@ Tuya Cloud HTTP API interface package
 
 ## Getting started
 
-Use React Native version 0.70.5
+Use React Native version **0.70.5**
 
 ```
 npm install @volst/react-native-tuya
@@ -25,9 +25,9 @@ Get your AppKey and AppSecret from SDK Development tab.
 
 ### iOS
 
-Unpach archive and check README, put Build folder and ThingSmartCryption.podspec into ios folder.
+Unpach archive and check README, put **Build** folder and **ThingSmartCryption.podspec** into ios folder.
 
-In 'Podfile' add:
+In **'Podfile'** add:
 
 ```
   source 'https://github.com/TuyaInc/TuyaPublicSpecs.git'
@@ -64,24 +64,111 @@ Now replace the `xxx` with your app key and secret key.
 
 ### Android
 
-#### Will be updated soon
+Update your package name and applicationId to the one from IoT Platform everywhere it appears. Also check that android/app/src/main/java/com/<appname> has the same name as that of your app in manifest file in `android/app/src/main/`.
 
-Assuming you already have created an app in the Tuya development environment (otherwise follow the iOS steps before this), follow [these steps](https://tuyainc.github.io/tuyasmart_home_android_sdk_doc/en/resource/Integrated.html#3-integrated-security-image). You should now have an app key, app secret and security image for Android. Make sure the security image is put in `android/src/main/assets/t_s.bmp`.
+Download Android SDK from IoT Platform.
+Unzip the tar and get the `xxx.aar` file.
+Take the `xxx.aar` file into your `project/app/libs` folder.
+
+Create and add **SHA256** key. [Here is documentation](https://developer.tuya.com/en/docs/app-development/iot_app_sdk_core_sha1?id=Kao7c7b139vrh)
+
+In your `android\app\build.gradle` file update:
+
+```java
+  android {
+  ....
+    signingConfigs {
+      debug {
+        storeFile file('your_key_name.keystore')
+        storePassword 'your_key_store_password'
+        keyAlias 'your_key_alias'
+        keyPassword 'your_key_file_alias_password'
+      }
+      release {
+        storeFile file('your_key_name.keystore')
+        storePassword 'your_key_store_password'
+        keyAlias 'your_key_alias'
+        keyPassword 'your_key_file_alias_password'
+      }
+    }
+    buildTypes {
+      release {
+        ....
+        signingConfig signingConfigs.release
+      }
+    }
+  }
+```
+
+In your `android\app\build.gradle` add:
+
+```java
+  defaultConfig {
+    ...
+    ndk {
+      abiFilters "armeabi-v7a", "arm64-v8a"
+    }
+  }
+
+  packagingOptions {
+    pickFirst '**/libjsc.so'
+    pickFirst '**/libc++_shared.so'
+  }
+
+  configurations.all {
+    exclude group: "com.thingclips.smart" ,module: 'thingsmart-modularCampAnno'
+  }
+
+  dependencies {
+    implementation fileTree(dir: "libs", include: ["*.jar", "*.aar"])
+    implementation 'com.alibaba:fastjson:1.1.67.android'
+    implementation 'com.squareup.okhttp3:okhttp-urlconnection:3.14.9'
+    // The latest stable App SDK for Android.
+    implementation 'com.facebook.soloader:soloader:0.10.4'
+    implementation 'com.thingclips.smart:thingsmart:5.5.5'
+  }
+```
+
+In `android/app/proguard-rules.pro` (According to [Smart Life App SDK for Android documentation](https://developer.tuya.com/en/docs/app-development/integrated?id=Ka69nt96cw0uj)):
+
+```
+  #fastJson
+  -keep class com.alibaba.fastjson.**{*;}
+  -dontwarn com.alibaba.fastjson.**
+
+  #mqtt
+  -keep class com.thingclips.smart.mqttclient.mqttv3.** { *; }
+  -dontwarn com.thingclips.smart.mqttclient.mqttv3.**
+
+  #OkHttp3
+  -keep class okhttp3.** { *; }
+  -keep interface okhttp3.** { *; }
+  -dontwarn okhttp3.**
+  -keep class okio.** { *; }
+  -dontwarn okio.**
+  -keep class com.thingclips.**{*;}
+  -dontwarn com.thingclips.**
+
+  # Matter SDK
+  -keep class chip.** { *; }
+  -dontwarn chip.**
+```
 
 Open your `AndroidManifest.xml` and put the following **in the `<application>` tag**:
 
 ```xml
 <meta-data
-  android:name="TUYA_SMART_APPKEY"
+  android:name="THING_SMART_APPKEY"
   android:value="xxx" />
 <meta-data
-  android:name="TUYA_SMART_SECRET"
+  android:name="THING_SMART_SECRET"
   android:value="xxx" />
 ```
 
 Replace the `xxx` with your app key and secret key.
 
 Now open `MainApplication.java` and add the following import to the top:
+
 
 ```java
 import com.tuya.smart.rnsdk.core.TuyaCoreModule;
@@ -93,25 +180,11 @@ Change the `onCreate` function to look like this:
 @Override
 public void onCreate() {
   super.onCreate();
+  // If you opted-in for the New Architecture, we enable the TurboModule system
+  ReactFeatureFlags.useTurboModules = BuildConfig.IS_NEW_ARCHITECTURE_ENABLED;
   SoLoader.init(this, /* native exopackage */ false);
-  initializeFlipper(this); // Remove this line if you don't want Flipper enabled
+  initializeFlipper(this, getReactNativeHost().getReactInstanceManager());
   TuyaCoreModule.Companion.initTuyaSDKWithoutOptions(this);
-}
-```
-
-Now you can try to build, but you'll probably run into an error saying that it can't choose between `libc++_shared` or something. One fix for this (don't know if it's the best fix) is to open `android/app/build.gradle` and add this;
-
-```
-android {
-    ...
-    packagingOptions {
-        pickFirst '**/armeabi-v7a/libc++_shared.so'
-        pickFirst '**/x86/libc++_shared.so'
-        pickFirst '**/arm64-v8a/libc++_shared.so'
-        pickFirst '**/x86_64/libc++_shared.so'
-        pickFirst '**/x86/libjsc.so'
-        pickFirst '**/armeabi-v7a/libjsc.so'
-    }
 }
 ```
 
