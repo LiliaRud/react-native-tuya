@@ -188,6 +188,34 @@ public void onCreate() {
 }
 ```
 
+In `android/build.gradle`:
+
+```java
+  minSdkVersion = 23
+  compileSdkVersion = 32
+  targetSdkVersion = 32
+
+  allprojects {
+    repositories {
+      ...
+      jcenter()
+      maven { url 'https://maven-other.tuya.com/repository/maven-releases/' }
+      maven { url "https://maven-other.tuya.com/repository/maven-commercial-releases/" }
+      maven { url 'https://maven.aliyun.com/repository/public' }
+      maven { url 'https://central.maven.org/maven2/' }
+      maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
+      maven { url 'https://developer.huawei.com/repo/' }
+    }
+  }
+```
+
+In `android/gradle.properties`:
+#### ! Not sure yet if it needs
+
+```java
+  android.disableAutomaticComponentCreation=true
+```
+
 ## Usage
 
 To login with an existing account:
