@@ -14,7 +14,7 @@ Tuya Cloud HTTP API interface package
 Use React Native version **0.70.5**
 
 ```
-npm install @volst/react-native-tuya
+npm i --save LiliaRud/react-native-tuya
 ```
 
 ## Installation
@@ -44,7 +44,7 @@ After `target 'yourApp' do`
 
 Run `pod install`
 
-In `ios/AppDelegate.mm`, add the following import;
+In `ios/<appname>/AppDelegate.mm`, add the following import;
 
 ```obj-c
 #import <ThingSmartHomeKit/ThingSmartKit.h>
@@ -207,13 +207,6 @@ In `android/build.gradle`:
       maven { url 'https://developer.huawei.com/repo/' }
     }
   }
-```
-
-In `android/gradle.properties`:
-#### ! Not sure yet if it needs
-
-```java
-  android.disableAutomaticComponentCreation=true
 ```
 
 ## Usage
