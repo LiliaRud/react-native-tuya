@@ -18,7 +18,7 @@ import com.tuya.smart.rnsdk.home.TuyaHomeDataManagerModule
 import com.tuya.smart.rnsdk.home.TuyaHomeManagerModule
 import com.tuya.smart.rnsdk.home.TuyaHomeMemberModule
 import com.tuya.smart.rnsdk.home.TuyaHomeModule
-import com.tuya.smart.rnsdk.home.TuyaRoomModule
+import com.tuya.smart.rnsdk.room.TuyaRoomModule
 import com.tuya.smart.rnsdk.message.TuyaMessageModule
 import com.tuya.smart.rnsdk.push.TuyaPushModule
 import com.tuya.smart.rnsdk.scene.TuyaSceneModule
