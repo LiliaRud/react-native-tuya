@@ -1,4 +1,4 @@
-package com.tuya.smart.rnsdk.home
+package com.tuya.smart.rnsdk.room
 
 import com.facebook.react.bridge.*
 import com.thingclips.smart.home.sdk.ThingHomeSdk
