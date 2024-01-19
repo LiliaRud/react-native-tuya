@@ -10,3 +10,4 @@ export * from './ota';
 export * from './timer';
 export * from './user';
 export * from './room';
+export * from './mesh';
