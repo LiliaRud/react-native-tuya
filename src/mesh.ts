@@ -2,9 +2,9 @@ import { NativeModules, Platform } from 'react-native';
 
 const tuya = NativeModules.TuyaBLEMeshModule;
 
-export function startMeshScan(params: any) {
+export function startMeshScan() {
   if (Platform.OS === 'ios') {
-    return tuya.startScan(params);
+    return tuya.startScan();
   }
 }
 

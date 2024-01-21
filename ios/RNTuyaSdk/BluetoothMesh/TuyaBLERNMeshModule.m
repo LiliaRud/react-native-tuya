@@ -10,14 +10,11 @@
 #import <ThingSmartBLEMeshKit/ThingSmartBLEMeshKit.h>
 #import "TuyaEventSender.h"
 
-#define kTuyaRNActivatorModuleHomeId @"homeId"
 
 static TuyaBLERNMeshModule * scannerInstance = nil;
 
 @interface TuyaBLERNMeshModule()<ThingSmartSIGMeshManagerDelegate>
 
-@property (nonatomic, assign) BOOL isSuccess;
-@property (nonatomic, strong) NSMutableArray<ThingSmartSIGMeshDiscoverDeviceInfo *> *dataSource;
 @property (nonatomic, strong) ThingSmartSIGMeshManager *manager;
 
 @end
@@ -27,26 +24,53 @@ static TuyaBLERNMeshModule * scannerInstance = nil;
 RCT_EXPORT_MODULE(TuyaBLEMeshModule)
 
 RCT_EXPORT_METHOD(stopScan:(RCTPromiseResolveBlock)resolver rejecter:(RCTPromiseRejectBlock)rejecter) {
+  NSLog(@"---------------STOP");
   [ThingSmartSIGMeshManager.sharedInstance stopActiveDevice];
   [ThingSmartSIGMeshManager.sharedInstance stopSerachDevice];
   ThingSmartSIGMeshManager.sharedInstance.delegate = nil;
 }
 
-RCT_EXPORT_METHOD(startScan:(NSDictionary *)params) {
+- (ThingSmartHomeModel *)getCurrentHome {
+  NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+  if (![defaults valueForKey:@"CurrentHome"]) {
+    return nil;
+  }
+  long long homeId = [[defaults valueForKey:@"CurrentHome"] longLongValue];
+  if (![ThingSmartHome homeWithHomeId:homeId]) {
+    return nil;
+  }
+  return [ThingSmartHome homeWithHomeId:homeId].homeModel;
+}
+
+RCT_EXPORT_METHOD(startScan) {
   if (scannerInstance == nil) {
     scannerInstance = [TuyaBLERNMeshModule new];
   }
 
-  NSNumber *homeId = params[kTuyaRNActivatorModuleHomeId];
-
+  long long homeId = [self getCurrentHome].homeId;
   ThingSmartHome *home = [ThingSmartHome homeWithHomeId:homeId];
   ThingSmartBleMeshModel *sigMeshModel = home.sigMeshModel;
+ 
+  if (sigMeshModel) {
+    NSLog(@"---------------sigMeshModel presented");
+    [self performSearch:sigMeshModel];
+  } else {
+    NSLog(@"---------------sigMeshModel NONE");  
+    // [ThingSmartBleMesh createSIGMeshWithHomeId:homeId success:^(ThingSmartBleMeshModel *meshModel) {
+    //   NSLog(@"---------------successfully created: %@", meshModel);  
+    // } failure:^(NSError *error) {
+    //     NSLog(@"create mesh error: %@", error);
+    // }];
+  }
+}
 
+- (void)performSearch:(ThingSmartBleMeshModel *)sigMeshModel {
+  self.manager = [ThingSmartBleMesh initSIGMeshManager:sigMeshModel ttl:8 nodeIds:nil];
+  self.manager.delegate = self;
 
-  // self.manager = [ThingSmartBleMesh initSIGMeshManager:sigMeshModel ttl:8 nodeIds:nil];
-  // self.manager.delegate = self;
+  NSLog(@"---------------startSearch");
 
-  // [self.manager startSearch];
+  [self.manager startSearch];
 }
 
 - (void)sigMeshManager:(ThingSmartSIGMeshManager *)manager didScanedDevice:(ThingSmartSIGMeshDiscoverDeviceInfo *)device{
