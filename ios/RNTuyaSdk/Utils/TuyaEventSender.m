@@ -8,6 +8,7 @@
 #import "TuyaEventSender.h"
 
 NSString *const tuyaEventSenderScanLEEvent = @"ON_SCAN_BEAN_EVENT";
+NSString *const tuyaEventSenderDeviceAction = @"ON_DEVICE_ACTION";
 
 @implementation TuyaEventSender
 {
@@ -27,7 +28,7 @@ RCT_EXPORT_MODULE(TuyaEventSender);
 
 - (NSArray<NSString *> *)supportedEvents
 {
-  return @[tuyaEventSenderScanLEEvent];
+  return @[tuyaEventSenderScanLEEvent, tuyaEventSenderDeviceAction];
 }
 
 // Will be called when this module's first listener is added.

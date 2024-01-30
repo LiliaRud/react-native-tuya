@@ -12,6 +12,7 @@
 #import <React/RCTEventEmitter.h>
 
 extern NSString *const tuyaEventSenderScanLEEvent;
+extern NSString *const tuyaEventSenderDeviceAction;
 
 @interface TuyaEventSender : RCTEventEmitter<RCTBridgeModule>
 

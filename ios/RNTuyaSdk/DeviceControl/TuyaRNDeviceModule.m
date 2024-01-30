@@ -11,6 +11,7 @@
 #import <ThingSmartDeviceKit/ThingSmartDeviceKit.h>
 #import "TuyaRNUtils.h"
 #import "YYModel.h"
+#import "TuyaEventSender.h"
 
 
 #define kTuyaDeviceModuleDevId @"devId"
@@ -98,6 +99,9 @@ RCT_EXPORT_METHOD(renameDevice:(NSDictionary *)params resolver:(RCTPromiseResolv
   self.smartDevice  = [self smartDeviceWithParams:params];
   NSString *deviceName = params[kTuyaDeviceModuleDeviceName];
   [self.smartDevice updateName:deviceName success:^{
+    TuyaEventSender * eventSender = [TuyaEventSender allocWithZone: nil];
+    [eventSender sendEvent2RN:tuyaEventSenderDeviceAction body:nil];
+
     [TuyaRNUtils resolverWithHandler:resolver];
   } failure:^(NSError *error) {
     [TuyaRNUtils rejecterWithError:error handler:rejecter];
@@ -129,6 +133,9 @@ RCT_EXPORT_METHOD(removeDevice:(NSDictionary *)params resolver:(RCTPromiseResolv
 
   self.smartDevice  = [self smartDeviceWithParams:params];
   [self.smartDevice remove:^{
+    TuyaEventSender * eventSender = [TuyaEventSender allocWithZone: nil];
+    [eventSender sendEvent2RN:tuyaEventSenderDeviceAction body:nil];
+
     [TuyaRNUtils resolverWithHandler:resolver];
   } failure:^(NSError *error) {
     [TuyaRNUtils rejecterWithError:error handler:rejecter];
