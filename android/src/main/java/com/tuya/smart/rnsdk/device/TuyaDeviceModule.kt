@@ -3,6 +3,7 @@ package com.tuya.smart.rnsdk.device
 import android.util.Log
 import com.alibaba.fastjson.JSONObject
 import com.facebook.react.bridge.*
+import com.facebook.react.modules.core.DeviceEventManagerModule.RCTDeviceEventEmitter
 import com.thingclips.smart.android.device.api.IGetDataPointStatCallback
 import com.thingclips.smart.android.device.bean.DataPointStatBean
 import com.thingclips.smart.android.device.enums.DataPointTypeEnum
@@ -28,6 +29,10 @@ class TuyaDeviceModule(reactContext: ReactApplicationContext) : ReactContextBase
 
     override fun getName(): String {
         return "TuyaDeviceModule"
+    }
+
+    companion object {
+        const val ON_DEVICE_ACTION = "ON_DEVICE_ACTION"
     }
 
     @ReactMethod
@@ -81,7 +86,6 @@ class TuyaDeviceModule(reactContext: ReactApplicationContext) : ReactContextBase
                     map.putString("devId", devId)
                     map.putBoolean("status", status)
                     map.putString("type", "onNetworkStatusChanged");
-
                     BridgeUtils.devListener(reactApplicationContext, map, params.getString(DEVID) as String)
                 }
 
@@ -137,6 +141,8 @@ class TuyaDeviceModule(reactContext: ReactApplicationContext) : ReactContextBase
     fun renameDevice(params: ReadableMap, promise: Promise) {
         if (ReactParamsCheck.checkParams(arrayOf(DEVID, NAME), params)) {
             getDevice(params.getString(DEVID) as String)?.renameDevice(params.getString(NAME), getIResultCallback(promise))
+
+            this.reactApplicationContext.getJSModule(RCTDeviceEventEmitter::class.java).emit(ON_DEVICE_ACTION, null)
         }
     }
 
@@ -156,6 +162,8 @@ class TuyaDeviceModule(reactContext: ReactApplicationContext) : ReactContextBase
     fun removeDevice(params: ReadableMap, promise: Promise) {
         if (ReactParamsCheck.checkParams(arrayOf(DEVID), params)) {
             getDevice(params.getString(DEVID) as String)?.removeDevice(getIResultCallback(promise))
+
+            this.reactApplicationContext.getJSModule(RCTDeviceEventEmitter::class.java).emit(ON_DEVICE_ACTION, null)
         }
     }
 
