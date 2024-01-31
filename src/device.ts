@@ -80,10 +80,10 @@ export function renameDevice(params: RenameDeviceParams): Promise<string> {
 
 export type GetDataPointStatsParams = {
   devId: string;
-  DataPointTypeEnum: 'DAY' | 'WEEK' | 'MONTH';
-  number: number; // number of historical data result values, up to 50
-  dpId: string;
-  startTime: number; // in ms
+  DataPointTypeEnum?: 'DAY' | 'WEEK' | 'MONTH';
+  number?: number; // number of historical data result values, up to 50
+  dpId?: string;
+  startTime?: number; // in ms
 };
 
 export function getDataPointStat(
