@@ -123,6 +123,12 @@ RCT_EXPORT_METHOD(renameDevice:(NSDictionary *)params resolver:(RCTPromiseResolv
 
 RCT_EXPORT_METHOD(getDataPointStat:(NSDictionary *)params resolver:(RCTPromiseResolveBlock)resolver rejecter:(RCTPromiseRejectBlock)rejecter) {
   self.smartDevice  = [self smartDeviceWithParams:params];
+
+  if (self.smartDevice) {
+    if (resolver) {
+      resolver([self.smartDevice.deviceModel yy_modelToJSONObject]);
+    }
+  }
 }
 
 
