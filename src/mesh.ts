@@ -6,10 +6,6 @@ type StartScanParams = {
   homeId: number;
 };
 
-type DeviceParams = {
-  device: any
-}
-
 export function startMeshScan(params: StartScanParams) {
   if (Platform.OS === 'ios') {
     return tuya.startScan(params);
@@ -22,8 +18,14 @@ export function stopMeshScan() {
   }
 }
 
-export function activateDevice(params: DeviceParams) {
+export function activateDevice() {
   if (Platform.OS === 'ios') {
-    return tuya.activateDevice(params);
+    return tuya.activateDevice();
   }
+}
+
+export function getDevice(
+  params: any
+): Promise<any> {
+  return tuya.getDevice(params);
 }

@@ -14,6 +14,7 @@
 #import "YYModel.h"
 
 #define kTuyaRNMeshModuleHomeId @"homeId"
+#define kTuyaRNMeshModuleDevId @"devId"
 
 static TuyaBLERNMeshModule * scannerInstance = nil;
 
@@ -32,7 +33,7 @@ RCT_EXPORT_MODULE(TuyaBLEMeshModule)
 
 - (NSMutableArray *)dataSource{
   if (!_dataSource) {
-      _dataSource = NSMutableArray.new;
+    _dataSource = NSMutableArray.new;
   }
   return _dataSource;
 }
@@ -93,7 +94,7 @@ RCT_EXPORT_METHOD(startScan:(NSDictionary *)params) {
   }
 }
 
-RCT_EXPORT_METHOD(activateDevice:(NSDictionary *)params resolver:(RCTPromiseResolveBlock)resolver rejecter:(RCTPromiseRejectBlock)rejecter) {
+RCT_EXPORT_METHOD(activateDevice:(RCTPromiseResolveBlock)resolver rejecter:(RCTPromiseRejectBlock)rejecter) {
   if (scannerInstance == nil) {
     scannerInstance = [TuyaBLERNMeshModule new];
   }
@@ -102,6 +103,16 @@ RCT_EXPORT_METHOD(activateDevice:(NSDictionary *)params resolver:(RCTPromiseReso
   scannerInstance.promiseRejectBlock = rejecter;
 
   [self.manager startActive:self.dataSource];
+}
+
+
+RCT_EXPORT_METHOD(getDevice:(NSDictionary *)params resolver:(RCTPromiseResolveBlock)resolver rejecter:(RCTPromiseRejectBlock)rejecter) {
+  NSString *devId = params[kTuyaRNMeshModuleDevId];
+  ThingSmartDevice *smartDevice = [ThingSmartDevice deviceWithDeviceId:devId];
+
+  if (resolver) {
+    resolver([smartDevice.deviceModel yy_modelToJSONObject]);
+  }
 }
 
 @end
