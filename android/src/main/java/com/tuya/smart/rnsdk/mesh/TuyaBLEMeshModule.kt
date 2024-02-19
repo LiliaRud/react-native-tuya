@@ -15,6 +15,8 @@ import com.thingclips.smart.android.blemesh.bean.SearchDeviceBean
 import com.thingclips.smart.home.sdk.bean.HomeBean
 import com.thingclips.smart.home.sdk.callback.IThingResultCallback
 import com.tuya.smart.rnsdk.utils.Constant.HOMEID
+import com.tuya.smart.rnsdk.utils.Constant.DEVID
+import com.tuya.smart.rnsdk.utils.TuyaReactUtils
 
 
 class TuyaBLEMeshModule(reactContext: ReactApplicationContext) :
@@ -98,6 +100,10 @@ class TuyaBLEMeshModule(reactContext: ReactApplicationContext) :
 
   @ReactMethod
   fun getDevice(params: ReadableMap, promise: Promise) {
+    val devId = params.getString(DEVID);
+    val smartDeviceBean = ThingHomeSdk.getDataInstance().getDeviceBean(devId);
+    val smartDevice = TuyaReactUtils.parseToWritableMap(smartDeviceBean);
 
+    promise.resolve(smartDevice);
   }
 }
