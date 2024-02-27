@@ -87,7 +87,7 @@ RCT_EXPORT_METHOD(startScan:(NSDictionary *)params) {
   [eventSender sendEvent2RN:tuyaEventSenderDeviceAction body:nil];
 
   if (scannerInstance.promiseResolveBlock) {
-    scannerInstance.promiseResolveBlock([device yy_modelToJSONObject]);
+    scannerInstance.promiseResolveBlock(devId);
   }
 }
 
