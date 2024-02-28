@@ -25,6 +25,7 @@ import com.tuya.smart.rnsdk.scene.TuyaSceneModule
 import com.tuya.smart.rnsdk.share.TuyaShareModule
 import com.tuya.smart.rnsdk.timer.TuyaTimerModule
 import com.tuya.smart.rnsdk.user.TuyaUserModule
+import com.tuya.smart.rnsdk.mesh.TuyaBLEMeshModule
 
 import java.util.*
 
@@ -55,6 +56,7 @@ class TuyaReactPackage : ReactPackage {
         module.add(TuyaTimerModule(reactContext))
         module.add(TuyaUserModule(reactContext))
         module.add(TuyaSceneModule(reactContext))
+        module.add(TuyaBLEMeshModule(reactContext))
         return module
     }
 

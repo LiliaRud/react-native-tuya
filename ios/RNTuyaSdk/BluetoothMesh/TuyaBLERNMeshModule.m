@@ -75,6 +75,9 @@ RCT_EXPORT_METHOD(startScan:(NSDictionary *)params) {
 - (void)sigMeshManager:(ThingSmartSIGMeshManager *)manager didScanedDevice:(ThingSmartSIGMeshDiscoverDeviceInfo *)device{
   [self.dataSource addObject:device];
 
+  [ThingSmartSIGMeshManager.sharedInstance stopSerachDevice];
+  ThingSmartSIGMeshManager.sharedInstance.delegate = nil;
+
   TuyaEventSender * eventSender = [TuyaEventSender allocWithZone: nil];
   [eventSender sendEvent2RN:tuyaEventSenderScanLEEvent body:[device yy_modelToJSONObject]];
 }
@@ -84,7 +87,7 @@ RCT_EXPORT_METHOD(startScan:(NSDictionary *)params) {
   [eventSender sendEvent2RN:tuyaEventSenderDeviceAction body:nil];
 
   if (scannerInstance.promiseResolveBlock) {
-    scannerInstance.promiseResolveBlock([device yy_modelToJSONObject]);
+    scannerInstance.promiseResolveBlock(devId);
   }
 }
 
