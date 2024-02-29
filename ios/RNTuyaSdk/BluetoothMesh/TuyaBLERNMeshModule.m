@@ -109,6 +109,11 @@ RCT_EXPORT_METHOD(activateDevice:(RCTPromiseResolveBlock)resolver rejecter:(RCTP
 }
 
 
+RCT_EXPORT_METHOD(stopActivator:(RCTPromiseResolveBlock)resolver rejecter:(RCTPromiseRejectBlock)rejecter) {
+  [ThingSmartSIGMeshManager.sharedInstance stopActiveDevice];
+}
+
+
 RCT_EXPORT_METHOD(getDevice:(NSDictionary *)params resolver:(RCTPromiseResolveBlock)resolver rejecter:(RCTPromiseRejectBlock)rejecter) {
   NSString *devId = params[kTuyaRNMeshModuleDevId];
   ThingSmartDevice *smartDevice = [ThingSmartDevice deviceWithDeviceId:devId];

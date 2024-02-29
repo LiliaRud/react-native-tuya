@@ -27,6 +27,7 @@ class TuyaBLEMeshModule(reactContext: ReactApplicationContext) :
 
   var mMeshSearch: IThingBlueMeshSearch? = null
   var dataSource: ArrayList<SearchDeviceBean> = ArrayList()
+  val iThingBlueMeshActivator:IThingBlueMeshActivator = null
 
   override fun getName(): String {
     return "TuyaBLEMeshModule"
@@ -113,10 +114,12 @@ class TuyaBLEMeshModule(reactContext: ReactApplicationContext) :
       }
 
       override fun onError(mac: String, errorCode: String, errorMsg: String) {
-        Log.d("MYLOGS", "--------------activator error:" + errorMsg);
+        Log.i("MYLOGS", "--------------activator error:" + errorMsg);
       }
 
-      override fun onFinish() { }
+      override fun onFinish() {
+        Log.i("MYLOGS", "--------------activator finished");
+      }
     }
 
     val tuyaSigMeshActivatorBuilder: ThingSigMeshActivatorBuilder = ThingSigMeshActivatorBuilder()
@@ -125,8 +128,15 @@ class TuyaBLEMeshModule(reactContext: ReactApplicationContext) :
       .setTimeOut(300)
       .setThingBlueMeshActivatorListener(iThingBlueMeshActivatorListener);
 
-    val iThingBlueMeshActivator = ThingHomeSdk.getThingBlueMeshConfig().newSigActivator(tuyaSigMeshActivatorBuilder);
+    iThingBlueMeshActivator = ThingHomeSdk.getThingBlueMeshConfig().newSigActivator(tuyaSigMeshActivatorBuilder);
     iThingBlueMeshActivator.startActivator();
+  }
+
+  @ReactMethod
+  fun stopActivator() {
+    if (iThingBlueMeshActivator != null) {
+      iThingBlueMeshActivator.stopActivator();
+    }
   }
 
   @ReactMethod

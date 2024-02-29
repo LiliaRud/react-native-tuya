@@ -18,6 +18,10 @@ export function activateDevice() {
   return tuya.activateDevice();
 }
 
+export function stopActivator() {
+  return tuya.stopActivator();
+}
+
 export function getDevice(
   params: any
 ): Promise<any> {
