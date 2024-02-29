@@ -6,15 +6,14 @@ import com.facebook.react.modules.core.DeviceEventManagerModule.RCTDeviceEventEm
 import com.thingclips.smart.android.blemesh.api.IThingBlueMeshActivatorListener
 import com.thingclips.smart.home.sdk.ThingHomeSdk
 import com.thingclips.smart.home.sdk.api.IThingHome
-import com.thingclips.smart.sdk.bean.BlueMeshBean
 import com.thingclips.smart.android.blemesh.builder.SearchBuilder
 import com.thingclips.smart.android.blemesh.builder.ThingSigMeshActivatorBuilder
 import com.thingclips.smart.android.blemesh.api.IThingBlueMeshSearch
 import com.thingclips.smart.android.blemesh.api.IThingBlueMeshSearchListener
 import com.thingclips.smart.android.blemesh.bean.SearchDeviceBean
-import com.thingclips.smart.sdk.bean.DeviceBean;
-import com.thingclips.smart.home.sdk.bean.HomeBean
+import com.thingclips.smart.sdk.bean.DeviceBean
 import com.thingclips.smart.home.sdk.callback.IThingResultCallback
+import com.thingclips.smart.sdk.api.bluemesh.IThingBlueMeshActivator
 import com.thingclips.smart.sdk.bean.SigMeshBean
 import com.tuya.smart.rnsdk.utils.Constant.HOMEID
 import com.tuya.smart.rnsdk.utils.Constant.DEVID
@@ -27,7 +26,7 @@ class TuyaBLEMeshModule(reactContext: ReactApplicationContext) :
 
   var mMeshSearch: IThingBlueMeshSearch? = null
   var dataSource: ArrayList<SearchDeviceBean> = ArrayList()
-  val iThingBlueMeshActivator:IThingBlueMeshActivator = null
+  var iThingBlueMeshActivator: IThingBlueMeshActivator? = null
 
   override fun getName(): String {
     return "TuyaBLEMeshModule"
@@ -47,29 +46,23 @@ class TuyaBLEMeshModule(reactContext: ReactApplicationContext) :
   fun startScan(params: ReadableMap, promise: Promise) {
     val homeId = params.getDouble(HOMEID).toLong()
     val mThingHome: IThingHome = ThingHomeSdk.newHomeInstance(homeId);
-    val homeBean: HomeBean = mThingHome.homeBean
-  
-    if (homeBean != null){
-      val meshList: List<BlueMeshBean> = homeBean.meshList
+    val meshList: List<SigMeshBean> = ThingHomeSdk.getSigMeshInstance().getSigMeshList();
 
-      if (meshList.isNotEmpty()) {
-        performSearch();
-      } else {
+    if (meshList.isEmpty() || meshList.size == 0) {
+      ThingHomeSdk.newHomeInstance(homeId).createSigMesh(object: IThingResultCallback<SigMeshBean> {
 
-        mThingHome.createBlueMesh("default", object:
-          IThingResultCallback<BlueMeshBean> {
+        override fun onError(errorCode: String, errorMsg: String) {
+          Log.i("MYLOGS", "--------------ERROR create mesh: $errorMsg")
+          promise.reject(errorCode.toString(), errorMsg);
+        }
 
-          override fun onError(errorCode: String, errorMsg: String) {
-            Log.i("MYLOGS", "--------------ERROR create mesh: $errorMsg")
-            promise.reject(errorCode.toString(), errorMsg);
-          }
-
-          override fun onSuccess(blueMeshBean: BlueMeshBean) {
-            Log.i("MYLOGS", "--------------MESH CREATED: $blueMeshBean")
-            performSearch();
-          }
-        });
-      }
+        override fun onSuccess(result: SigMeshBean) {
+          Log.i("MYLOGS", "--------------MESH CREATED: $result")
+          performSearch();
+        }
+      });
+    } else {
+      performSearch();
     }
   }
 
@@ -129,13 +122,13 @@ class TuyaBLEMeshModule(reactContext: ReactApplicationContext) :
       .setThingBlueMeshActivatorListener(iThingBlueMeshActivatorListener);
 
     iThingBlueMeshActivator = ThingHomeSdk.getThingBlueMeshConfig().newSigActivator(tuyaSigMeshActivatorBuilder);
-    iThingBlueMeshActivator.startActivator();
+    iThingBlueMeshActivator?.startActivator();
   }
 
   @ReactMethod
   fun stopActivator() {
     if (iThingBlueMeshActivator != null) {
-      iThingBlueMeshActivator.stopActivator();
+      iThingBlueMeshActivator?.stopActivator();
     }
   }
 
