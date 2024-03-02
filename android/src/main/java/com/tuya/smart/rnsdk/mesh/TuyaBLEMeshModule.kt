@@ -107,11 +107,11 @@ class TuyaBLEMeshModule(reactContext: ReactApplicationContext) :
       }
 
       override fun onError(mac: String, errorCode: String, errorMsg: String) {
-        Log.i("MYLOGS", "--------------activator error:" + errorMsg);
+        Log.i("MYLOGS", "--------------activator error: " + errorMsg)
       }
 
       override fun onFinish() {
-        Log.i("MYLOGS", "--------------activator finished");
+        Log.i("MYLOGS", "--------------activator finished")
       }
     }
 
@@ -119,10 +119,10 @@ class TuyaBLEMeshModule(reactContext: ReactApplicationContext) :
       .setSearchDeviceBeans(dataSource)
       .setSigMeshBean(ThingHomeSdk.getSigMeshInstance().sigMeshList[0])
       .setTimeOut(300)
-      .setThingBlueMeshActivatorListener(iThingBlueMeshActivatorListener);
+      .setThingBlueMeshActivatorListener(iThingBlueMeshActivatorListener)
 
-    iThingBlueMeshActivator = ThingHomeSdk.getThingBlueMeshConfig().newSigActivator(tuyaSigMeshActivatorBuilder);
-    iThingBlueMeshActivator?.startActivator();
+    iThingBlueMeshActivator = ThingHomeSdk.getThingBlueMeshConfig().newSigActivator(tuyaSigMeshActivatorBuilder)
+    iThingBlueMeshActivator?.startActivator()
   }
 
   @ReactMethod

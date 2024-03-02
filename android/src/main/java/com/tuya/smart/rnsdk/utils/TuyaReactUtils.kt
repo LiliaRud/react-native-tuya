@@ -32,9 +32,10 @@ object TuyaReactUtils {
                 ReadableType.Number -> {
                     val value = readableMap.getDouble(key)
                     try {
-                        // Long型支持，如果数字大于int, 且是整数,转化成long
                         if (value > Integer.MAX_VALUE && value % 1 == 0.0) {
                             deconstructedMap[key] = value.toLong()
+                        } else if (value % 1 == 0.0) {
+                            deconstructedMap[key] = value.toInt()
                         } else {
                             deconstructedMap[key] = value
                         }
