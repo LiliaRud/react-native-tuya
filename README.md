@@ -125,7 +125,7 @@ In your `android\app\build.gradle` add:
     implementation 'com.squareup.okhttp3:okhttp-urlconnection:3.14.9'
     // The latest stable App SDK for Android.
     implementation 'com.facebook.soloader:soloader:0.10.4'
-    implementation 'com.thingclips.smart:thingsmart:5.5.5'
+    implementation 'com.thingclips.smart:thingsmart:5.8.1
   }
 ```
 
