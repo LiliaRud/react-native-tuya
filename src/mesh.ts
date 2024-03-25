@@ -7,7 +7,7 @@ type StartScanParams = {
 };
 
 type ActivatorParams = {
-  index: number;
+  indexes: Array<number>;
 };
 
 export function startMeshScan(params: StartScanParams) {
