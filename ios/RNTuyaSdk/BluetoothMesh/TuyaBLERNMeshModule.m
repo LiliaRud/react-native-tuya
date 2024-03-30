@@ -78,8 +78,6 @@ RCT_EXPORT_METHOD(startScan:(NSDictionary *)params) {
   self.manager.delegate = self;
 
   [self.dataSource removeAllObjects];
-
-  NSLog(@"---------------SIZE: %lu", self.dataSource.count);
   [self.manager startSearch];
 }
 
@@ -114,7 +112,6 @@ RCT_EXPORT_METHOD(activateDevice:(NSDictionary *)params resolver:(RCTPromiseReso
   [ThingSmartSIGMeshManager.sharedInstance stopSerachDevice];
 
   NSArray *indexes = params[kTuyaRNMeshModuleIndexes];
-
 
   if (self.dataSource.count > 0) {
     for (NSNumber* idx in indexes) {

@@ -34,7 +34,7 @@ class TuyaBLEMeshModule(reactContext: ReactApplicationContext) :
 
   companion object {
     const val ON_SCAN_BEAN_EVENT = "ON_SCAN_BEAN_EVENT"
-    const val ON_DEVICE_ACTION = "ON_DEVICE_ACTION"
+    const val ON_DEVICE_CONNECTED = "ON_DEVICE_CONNECTED"
   }
 
   @ReactMethod
@@ -46,10 +46,10 @@ class TuyaBLEMeshModule(reactContext: ReactApplicationContext) :
   fun startScan(params: ReadableMap, promise: Promise) {
     val homeId = params.getDouble(HOMEID).toLong()
     val mThingHome: IThingHome = ThingHomeSdk.newHomeInstance(homeId);
-    val meshList: List<SigMeshBean> = ThingHomeSdk.getSigMeshInstance().getSigMeshList();
+    val meshList: List<SigMeshBean> = ThingHomeSdk.getSigMeshInstance().sigMeshList;
 
-    if (meshList.isEmpty() || meshList.size == 0) {
-      ThingHomeSdk.newHomeInstance(homeId).createSigMesh(object: IThingResultCallback<SigMeshBean> {
+    if (meshList.isEmpty()) {
+      mThingHome.createSigMesh(object: IThingResultCallback<SigMeshBean> {
 
         override fun onError(errorCode: String, errorMsg: String) {
           Log.i("MYLOGS", "--------------ERROR create mesh: $errorMsg")
@@ -76,8 +76,6 @@ class TuyaBLEMeshModule(reactContext: ReactApplicationContext) :
       override fun onSearched(deviceBean: SearchDeviceBean) {
         dataSource.add(deviceBean)
 
-        mMeshSearch?.stopSearch()
-
         val device = mapOf("mac" to deviceBean.macAdress, "productId" to deviceBean.productId)
         reactApplicationContext.getJSModule(RCTDeviceEventEmitter::class.java).emit(ON_SCAN_BEAN_EVENT, TuyaReactUtils.parseToWritableMap(device))
       }
@@ -98,12 +96,19 @@ class TuyaBLEMeshModule(reactContext: ReactApplicationContext) :
  }
 
   @ReactMethod
-  fun activateDevice(promise: Promise) {
+  fun activateDevice(params: ReadableMap, promise: Promise) {
+    var selectedDevices = ArrayList<SearchDeviceBean>()
+    var indexes = params.getArray("indexes") as ReadableArray
+
+    for (index in 0 until indexes.size()) {
+      var value = indexes.getInt(index)
+      selectedDevices.add(dataSource[value as Int])
+    }
+
     val iThingBlueMeshActivatorListener: IThingBlueMeshActivatorListener = object : IThingBlueMeshActivatorListener {
       override fun onSuccess(mac: String, deviceBean: DeviceBean) {
-        reactApplicationContext.getJSModule(RCTDeviceEventEmitter::class.java).emit(ON_DEVICE_ACTION, null)
-
-        promise.resolve(deviceBean.devId)
+        val devId = deviceBean.devId
+        reactApplicationContext.getJSModule(RCTDeviceEventEmitter::class.java).emit(ON_DEVICE_CONNECTED, devId)
       }
 
       override fun onError(mac: String, errorCode: String, errorMsg: String) {
@@ -116,7 +121,7 @@ class TuyaBLEMeshModule(reactContext: ReactApplicationContext) :
     }
 
     val tuyaSigMeshActivatorBuilder: ThingSigMeshActivatorBuilder = ThingSigMeshActivatorBuilder()
-      .setSearchDeviceBeans(dataSource)
+      .setSearchDeviceBeans(selectedDevices)
       .setSigMeshBean(ThingHomeSdk.getSigMeshInstance().sigMeshList[0])
       .setTimeOut(300)
       .setThingBlueMeshActivatorListener(iThingBlueMeshActivatorListener)
