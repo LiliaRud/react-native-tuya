@@ -13,6 +13,7 @@
 
 extern NSString *const tuyaEventSenderScanLEEvent;
 extern NSString *const tuyaEventSenderDeviceAction;
+extern NSString *const tuyaEventSenderDeviceConnected;
 
 @interface TuyaEventSender : RCTEventEmitter<RCTBridgeModule>
 

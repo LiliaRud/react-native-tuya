@@ -15,6 +15,7 @@
 
 #define kTuyaRNMeshModuleHomeId @"homeId"
 #define kTuyaRNMeshModuleDevId @"devId"
+#define kTuyaRNMeshModuleIndexes @"indexes"
 
 static TuyaBLERNMeshModule * scannerInstance = nil;
 
@@ -22,6 +23,7 @@ static TuyaBLERNMeshModule * scannerInstance = nil;
 
 @property (nonatomic, strong) ThingSmartSIGMeshManager *manager;
 @property (nonatomic, strong) NSMutableArray<ThingSmartSIGMeshDiscoverDeviceInfo *> *dataSource;
+@property (nonatomic, strong) NSMutableArray<ThingSmartSIGMeshDiscoverDeviceInfo *> *selectedDevices;
 @property(copy, nonatomic) RCTPromiseResolveBlock promiseResolveBlock;
 @property(copy, nonatomic) RCTPromiseRejectBlock promiseRejectBlock;
 
@@ -36,6 +38,13 @@ RCT_EXPORT_MODULE(TuyaBLEMeshModule)
     _dataSource = NSMutableArray.new;
   }
   return _dataSource;
+}
+
+- (NSMutableArray *)selectedDevices{
+  if (!_selectedDevices) {
+    _selectedDevices = NSMutableArray.new;
+  }
+  return _selectedDevices;
 }
 
 RCT_EXPORT_METHOD(stopScan:(RCTPromiseResolveBlock)resolver rejecter:(RCTPromiseRejectBlock)rejecter) {
@@ -75,20 +84,13 @@ RCT_EXPORT_METHOD(startScan:(NSDictionary *)params) {
 - (void)sigMeshManager:(ThingSmartSIGMeshManager *)manager didScanedDevice:(ThingSmartSIGMeshDiscoverDeviceInfo *)device{
   [self.dataSource addObject:device];
 
-  [ThingSmartSIGMeshManager.sharedInstance stopSerachDevice];
-  ThingSmartSIGMeshManager.sharedInstance.delegate = nil;
-
   TuyaEventSender * eventSender = [TuyaEventSender allocWithZone: nil];
   [eventSender sendEvent2RN:tuyaEventSenderScanLEEvent body:[device yy_modelToJSONObject]];
 }
 
 - (void)sigMeshManager:(ThingSmartSIGMeshManager *)manager didActiveSubDevice:(ThingSmartSIGMeshDiscoverDeviceInfo *)device devId:(NSString *)devId error:(NSError *)error{
   TuyaEventSender * eventSender = [TuyaEventSender allocWithZone: nil];
-  [eventSender sendEvent2RN:tuyaEventSenderDeviceAction body:nil];
-
-  if (scannerInstance.promiseResolveBlock) {
-    scannerInstance.promiseResolveBlock(devId);
-  }
+  [eventSender sendEvent2RN:tuyaEventSenderDeviceConnected body:devId];
 }
 
 - (void)sigMeshManager:(ThingSmartSIGMeshManager *)manager didFailToActiveDevice:(ThingSmartSIGMeshDiscoverDeviceInfo *)device error:(NSError *)error{
@@ -97,22 +99,39 @@ RCT_EXPORT_METHOD(startScan:(NSDictionary *)params) {
   }
 }
 
-RCT_EXPORT_METHOD(activateDevice:(RCTPromiseResolveBlock)resolver rejecter:(RCTPromiseRejectBlock)rejecter) {
+RCT_EXPORT_METHOD(activateDevice:(NSDictionary *)params resolver:(RCTPromiseResolveBlock)resolver rejecter:(RCTPromiseRejectBlock)rejecter) {
   if (scannerInstance == nil) {
     scannerInstance = [TuyaBLERNMeshModule new];
   }
 
   scannerInstance.promiseResolveBlock = resolver;
   scannerInstance.promiseRejectBlock = rejecter;
+  
+  [self.selectedDevices removeAllObjects];
 
-  [self.manager startActive:self.dataSource];
+  [ThingSmartSIGMeshManager.sharedInstance stopSerachDevice];
+
+  NSArray *indexes = params[kTuyaRNMeshModuleIndexes];
+
+  if (self.dataSource.count > 0) {
+    for (NSNumber* idx in indexes) {
+      unsigned long index = ((NSNumber *)idx).unsignedLongValue;
+      ThingSmartSIGMeshDiscoverDeviceInfo *device = [self.dataSource objectAtIndex:index];
+
+      [self.selectedDevices addObject:device];
+    }
+
+    [self.manager startActive:self.selectedDevices];
+  } else {
+    if (scannerInstance.promiseRejectBlock) {
+      [TuyaRNUtils rejecterWithError:@"Invalid device" handler:scannerInstance.promiseRejectBlock];
+    }
+  }
 }
-
 
 RCT_EXPORT_METHOD(stopActivator:(RCTPromiseResolveBlock)resolver rejecter:(RCTPromiseRejectBlock)rejecter) {
   [ThingSmartSIGMeshManager.sharedInstance stopActiveDevice];
 }
-
 
 RCT_EXPORT_METHOD(getDevice:(NSDictionary *)params resolver:(RCTPromiseResolveBlock)resolver rejecter:(RCTPromiseRejectBlock)rejecter) {
   NSString *devId = params[kTuyaRNMeshModuleDevId];
